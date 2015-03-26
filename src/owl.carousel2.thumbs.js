@@ -1,3 +1,4 @@
+/*! owl.carousel2.thumbs - v0.1.0 | (c) 2015 @gijsroge | MIT license | https://github.com/gijsroge/OwlCarousel2-Thumbs */
 /**
  * Thumbs Plugin
  * @version 2.0.0
@@ -42,7 +43,8 @@
          * The carousel element.
          * @type {jQuery}
          */
-        this.$element = this.owl.$element;
+
+        this.$element = this.owl.dom.$el;
 
 
         /**
@@ -52,13 +54,20 @@
          */
 
         this._handlers = {
-            'prepared.owl.carousel': $.proxy(function(e) {
+            'initialize.owl.carousel': $.proxy(function(e) {
+                var children = $(e.target).clone().children(),
+                    thumbs = [];
                 if (e.namespace && this.owl._options.thumbs && !this.owl._options.thumbImage) {
-                    this._thumbcontent.push($(e.content).find('[data-thumb]').attr('data-thumb'));
+                    $.each(children, function (index, elem) {
+                        thumbs.push($(elem).attr('data-thumb'));
+                    });
                 } else if (e.namespace && this.owl._options.thumbs && this.owl._options.thumbImage) {
-                    var innerImage = $(e.content).find('img');
-                    this._thumbcontent.push(innerImage);
+                    $.each(children, function (index, elem) {
+                        var innerImage = $(elem).find('img');
+                        thumbs.push(innerImage);
+                    });
                 }
+                this._thumbcontent = thumbs;
             }, this),
             'initialized.owl.carousel': $.proxy(function(e) {
                 if (e.namespace && this.owl._options.thumbs) {
@@ -85,7 +94,7 @@
         this.owl._options = $.extend(Thumbs.Defaults, this.owl.options);
 
         // register the event handlers
-        this.owl.$element.on(this._handlers);
+        this.owl.dom.$el.on(this._handlers);
     };
 
 
@@ -106,8 +115,8 @@
      * @protected
      */
     Thumbs.prototype.currentslide = function() {
-        this.owl_currentitem = this.owl._current - (this.owl._clones.length / 2);
-        if (this.owl_currentitem === this.owl._items.length) {
+        this.owl_currentitem = this.owl._current - (this.owl.dom.$items.length / 2);
+        if (this.owl_currentitem === this.owl.dom.$items.length) {
             this.owl_currentitem = 0;
         }
     };
@@ -165,7 +174,7 @@
     Thumbs.prototype.destroy = function() {
         var handler, property;
         for (handler in this._handlers) {
-            this.owl.$element.off(handler, this._handlers[handler]);
+            this.owl.dom.$el.off(handler, this._handlers[handler]);
         }
         for (property in Object.getOwnPropertyNames(this)) {
             typeof this[property] !== 'function' && (this[property] = null);
